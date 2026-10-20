@@ -1,10 +1,19 @@
 package s3;
 
+import java.nio.file.Paths;
+
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.profiles.ProfileFile;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
 
 public class AccesoS3 {
-
+	
+	private S3Client s3;
+	private String identificador="rmmateosv01.dam.biblio.";
+	
 	public AccesoS3() {
 		//Conectar con S3
 		try {
@@ -12,16 +21,41 @@ public class AccesoS3 {
 			ProfileCredentialsProvider credenciales = ProfileCredentialsProvider
 					.builder()
 					.profileFile(ProfileFile.builder()
-											.type(null)
-											.content(null)
+											.type(ProfileFile.Type.CREDENTIALS)
+											.content(Paths.get(".credenciales"))
 											.build()
 								)
+					.build();
+			//Instanciamos el cliente s3
+			s3=S3Client.builder()
+					.region(Region.US_EAST_1)
+					.credentialsProvider(credenciales)
 					.build();
 			
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
+	}
+	public S3Client getS3() {
+		return s3;
+	}
+	public boolean crearEstanteria(String nombre) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			//Crear solicitud de creación de bucket
+			CreateBucketRequest s = CreateBucketRequest.builder()
+					.bucket(this.identificador+nombre)
+					.build();
+			//Ejecutar la operación de creación de bucket
+			CreateBucketResponse r = s3.createBucket(s);
+			System.out.println(r);
+			resultado=true;			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
 	}
 	
 }
