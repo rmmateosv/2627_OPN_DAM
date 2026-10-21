@@ -10,7 +10,12 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
+import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteBucketResponse;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class AccesoS3 {
 	
@@ -49,7 +54,7 @@ public class AccesoS3 {
 		try {
 			//Crear solicitud de creación de bucket
 			CreateBucketRequest s = CreateBucketRequest.builder()
-					.bucket(this.identificador+nombre)
+					.bucket(this.identificador+nombre.toLowerCase())
 					.build();
 			//Ejecutar la operación de creación de bucket
 			CreateBucketResponse r = s3.createBucket(s);
@@ -79,7 +84,42 @@ public class AccesoS3 {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public ArrayList<String> obtenerLibros(String nombre) {
+		// TODO Auto-generated method stub
+		ArrayList<String> resultado = new ArrayList<String>();
+		try {
+			ListObjectsV2Request s = ListObjectsV2Request.builder()
+										.bucket(identificador+nombre.toLowerCase())
+										.build();
+			ListObjectsV2Response tmp =  s3.listObjectsV2(s);
+			//Obtener los nombres de los libros
+			for(S3Object o:tmp.contents()) {
+				resultado.add(o.key()); //o.key es el nombre del objeto
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public boolean borrarEstantería(String nombre) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			System.out.println(identificador+nombre.toLowerCase());
+			DeleteBucketRequest s = DeleteBucketRequest.builder()
+										.bucket(identificador+nombre.toLowerCase())										
+										.build();
+			DeleteBucketResponse tmp = s3.deleteBucket(s);
+			//System.out.println(tmp);
+			resultado=true;
+		} catch (Exception e) {
 			// TODO: handle exception
+			e.printStackTrace();
 		}
 		return resultado;
 	}

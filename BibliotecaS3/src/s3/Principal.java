@@ -31,6 +31,9 @@ public class Principal {
 				case 2:
 					mostrarEstanterías();
 					break;
+				case 3:
+					borrarEstantería();
+					break;
 				
 				}
 			}while(opcion!=0);
@@ -38,6 +41,27 @@ public class Principal {
 		else {
 			System.err.println("No se ha conectado con S3");
 		}
+	}
+
+	private static void borrarEstantería() {
+		// TODO Auto-generated method stub
+		mostrarEstanterías();
+		System.out.println("Introduce el nombre de la estantería a borrar");
+		String nombre = t.nextLine();
+		//Comprobamos si tiene libros. Si tiene libros, no se puede borrar
+		//Primero hay que borrar los libros
+		ArrayList<String> libros = ad.obtenerLibros(nombre);
+		if(libros.size()>0) {
+			System.err.println("No se puede borrar porque hay libros");
+		}
+		else {
+			if(ad.borrarEstantería(nombre)) {
+				System.out.println("Estantería borrada");
+			}
+			else {
+				System.err.println("Estantería no borrada");
+			}
+		}		
 	}
 
 	private static void mostrarEstanterías() {
