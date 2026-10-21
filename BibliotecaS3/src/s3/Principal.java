@@ -1,5 +1,6 @@
 package s3;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -34,12 +35,35 @@ public class Principal {
 				case 3:
 					borrarEstantería();
 					break;
-				
+				case 4:
+					colocarLibro();
+					break;
 				}
 			}while(opcion!=0);
 		}
 		else {
 			System.err.println("No se ha conectado con S3");
+		}
+	}
+
+	private static void colocarLibro() {
+		// TODO Auto-generated method stub
+		mostrarEstanterías();
+		System.out.println("Introduce el nombre de la estantería");
+		String nombreE = t.nextLine();
+		//Mostrar carpeta libros
+		System.out.println("Introduce el nombre del libro que quieres colocar");
+		mostrarCarpetaLocal();
+		String nombreL = t.nextLine();
+		
+	}
+
+	private static void mostrarCarpetaLocal() {
+		// TODO Auto-generated method stub
+		File carpeta = new File("libros");
+		File[] ficheros = carpeta.listFiles();
+		for(int i=0;i<ficheros.length;i++) {
+			System.out.println(ficheros[i].getName());
 		}
 	}
 
