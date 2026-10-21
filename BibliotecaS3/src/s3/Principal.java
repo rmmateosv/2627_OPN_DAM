@@ -1,5 +1,6 @@
 package s3;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Principal {
@@ -27,13 +28,24 @@ public class Principal {
 				case 1:
 					crearEstanteria();
 					break;
-
+				case 2:
+					mostrarEstanterías();
+					break;
 				
 				}
 			}while(opcion!=0);
 		}
 		else {
 			System.err.println("No se ha conectado con S3");
+		}
+	}
+
+	private static void mostrarEstanterías() {
+		// TODO Auto-generated method stub
+		ArrayList<String> estanterías = ad.obtenerEstanterías();
+		System.out.println("Estantería de la Biblioteca");
+		for(String e : estanterías) {
+			System.out.println(e);
 		}
 	}
 

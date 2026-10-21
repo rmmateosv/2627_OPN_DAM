@@ -1,13 +1,16 @@
 package s3;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.profiles.ProfileFile;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 
 public class AccesoS3 {
 	
@@ -54,6 +57,29 @@ public class AccesoS3 {
 			resultado=true;			
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public ArrayList<String> obtenerEstanterías() {
+		// TODO Auto-generated method stub
+		ArrayList<String> resultado = new ArrayList<String>();
+		try {
+			ListBucketsResponse tmp = s3.listBuckets();
+			//Recorremos los buckets y los que sean de la biblioteca, los
+			//añadimos a resultado
+			for(Bucket b:tmp.buckets()) {
+				if(b.name().contains(identificador)) {
+					//Dividimos el nombre del bucket por el .
+					String[] campos = b.name().split("\\.");
+					//campos[0]=rmmateosv01
+					//campos[1]=dam
+					//campos[2]=biblio
+					//campos[3]=novela
+					resultado.add(campos[3].toUpperCase());
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 		return resultado;
 	}
