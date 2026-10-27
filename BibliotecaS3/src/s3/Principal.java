@@ -38,11 +38,29 @@ public class Principal {
 				case 4:
 					colocarLibro();
 					break;
+				case 7:
+					crearNota();
+					break;
 				}
 			}while(opcion!=0);
 		}
 		else {
 			System.err.println("No se ha conectado con S3");
+		}
+	}
+
+	private static void crearNota() {
+		// TODO Auto-generated method stub
+		mostrarEstanterías();
+		System.out.println("Introduce el nombre de la estantería");
+		String nombreE = t.nextLine();
+		System.out.println("Introduce nota");
+		String nota = t.nextLine();
+		if(ad.crearNota(nombreE,nota)) {
+			System.out.println("Nota creada");
+		}
+		else {
+			System.err.println("Error al crear la nota");
 		}
 	}
 
@@ -55,6 +73,12 @@ public class Principal {
 		System.out.println("Introduce el nombre del libro que quieres colocar");
 		mostrarCarpetaLocal();
 		String nombreL = t.nextLine();
+		if(ad.subirLibro(nombreE, "libros"+File.separator+nombreL)) {
+			System.out.println("Libro colocado");
+		}
+		else {
+			System.err.println("Error al colocar el libro");
+		}
 		
 	}
 

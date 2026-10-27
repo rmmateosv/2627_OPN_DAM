@@ -1,0 +1,27 @@
+package s3;
+
+import java.util.Scanner;
+
+public class Principal {
+	
+	static Scanner t = new Scanner(System.in);
+	static AccesoS3 ad = new AccesoS3();
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		int opcion;
+		do {
+			System.out.println("Introduce opción:");
+			System.out.println("0-Salir");
+			System.out.println("1-Crear Estantería");
+			System.out.println("2-Mostrar Estanterías");
+			System.out.println("3-Borrar Estantería");
+			System.out.println("4-Colocar libro en estantería");
+			System.out.println("5-Ver libro");
+			System.out.println("6-Borrar Libro");
+			System.out.println("7-Crear nota en estantería");			
+			opcion = t.nextInt(); t.nextLine();			
+		}while(opcion!=0);
+	}
+
+}

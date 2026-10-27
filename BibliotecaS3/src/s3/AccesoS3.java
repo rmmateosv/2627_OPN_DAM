@@ -1,9 +1,12 @@
 package s3;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.profiles.ProfileFile;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -15,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.DeleteBucketResponse;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class AccesoS3 {
@@ -116,6 +120,42 @@ public class AccesoS3 {
 										.build();
 			DeleteBucketResponse tmp = s3.deleteBucket(s);
 			//System.out.println(tmp);
+			resultado=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public boolean subirLibro(String nombreE, String nombreL) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			//Subir fichero a bucket
+			PutObjectRequest s = PutObjectRequest.builder()
+									.bucket(identificador+nombreE.toLowerCase())
+									.key(nombreL)
+									.build();
+			RequestBody contenido = RequestBody.fromFile(Path.of(nombreL));
+			s3.putObject(s, contenido);
+			resultado=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public boolean crearNota(String nombreE, String nota) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			//Subir fichero creado desde un texto a bucket
+			PutObjectRequest s = PutObjectRequest.builder()
+									.bucket(identificador+nombreE.toLowerCase())
+									.key("notas/"+LocalDateTime.now()+".txt")
+									.build();
+			RequestBody contenido = RequestBody.fromString(nota);
+			s3.putObject(s, contenido);
 			resultado=true;
 		} catch (Exception e) {
 			// TODO: handle exception

@@ -1,0 +1,41 @@
+package s3;
+
+import java.nio.file.Paths;
+
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.profiles.ProfileFile;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+
+public class AccesoS3 {
+	
+	private S3Client s3;
+	
+	public AccesoS3() {
+		//Conectar con S3
+		try {
+			//Obtener crendenciales de acceso
+			ProfileCredentialsProvider credenciales = ProfileCredentialsProvider
+					.builder()
+					.profileFile(ProfileFile.builder()
+											.type(ProfileFile.Type.CREDENTIALS)
+											.content(Paths.get(".credenciales"))
+											.build()
+								)
+					.build();
+			//Instanciamos el cliente s3
+			s3=S3Client.builder()
+					.region(Region.US_EAST_1)
+					.credentialsProvider(credenciales)
+					.build();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+	public S3Client getS3() {
+		return s3;
+	}
+	
+}
