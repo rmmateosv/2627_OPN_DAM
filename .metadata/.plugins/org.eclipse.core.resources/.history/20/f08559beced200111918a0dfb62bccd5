@@ -1,0 +1,196 @@
+package s3;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.profiles.ProfileFile;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
+import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteBucketResponse;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
+
+public class AccesoS3 {
+	
+	private S3Client s3;
+	private String identificador="rmmateosv01.dam.biblio.";
+	
+	public AccesoS3() {
+		//Conectar con S3
+		try {
+			//Obtener crendenciales de acceso
+			ProfileCredentialsProvider credenciales = ProfileCredentialsProvider
+					.builder()
+					.profileFile(ProfileFile.builder()
+											.type(ProfileFile.Type.CREDENTIALS)
+											.content(Paths.get(".credenciales"))
+											.build()
+								)
+					.build();
+			//Instanciamos el cliente s3
+			s3=S3Client.builder()
+					.region(Region.US_EAST_1)
+					.credentialsProvider(credenciales)
+					.build();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+	public S3Client getS3() {
+		return s3;
+	}
+	public boolean crearEstanteria(String nombre) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			//Crear solicitud de creación de bucket
+			CreateBucketRequest s = CreateBucketRequest.builder()
+					.bucket(this.identificador+nombre.toLowerCase())
+					.build();
+			//Ejecutar la operación de creación de bucket
+			CreateBucketResponse r = s3.createBucket(s);
+			System.out.println(r);
+			resultado=true;			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public ArrayList<String> obtenerEstanterías() {
+		// TODO Auto-generated method stub
+		ArrayList<String> resultado = new ArrayList<String>();
+		try {
+			ListBucketsResponse tmp = s3.listBuckets();
+			//Recorremos los buckets y los que sean de la biblioteca, los
+			//añadimos a resultado
+			for(Bucket b:tmp.buckets()) {
+				if(b.name().contains(identificador)) {
+					//Dividimos el nombre del bucket por el .
+					String[] campos = b.name().split("\\.");
+					//campos[0]=rmmateosv01
+					//campos[1]=dam
+					//campos[2]=biblio
+					//campos[3]=novela
+					resultado.add(campos[3].toUpperCase());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public ArrayList<String> obtenerLibros(String nombre) {
+		// TODO Auto-generated method stub
+		ArrayList<String> resultado = new ArrayList<String>();
+		try {
+			ListObjectsV2Request s = ListObjectsV2Request.builder()
+										.bucket(identificador+nombre.toLowerCase())
+										.build();
+			ListObjectsV2Response tmp =  s3.listObjectsV2(s);
+			//Obtener los nombres de los libros
+			for(S3Object o:tmp.contents()) {
+				resultado.add(o.key()); //o.key es el nombre del objeto
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public boolean borrarEstantería(String nombre) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			System.out.println(identificador+nombre.toLowerCase());
+			DeleteBucketRequest s = DeleteBucketRequest.builder()
+										.bucket(identificador+nombre.toLowerCase())										
+										.build();
+			DeleteBucketResponse tmp = s3.deleteBucket(s);
+			//System.out.println(tmp);
+			resultado=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public boolean subirLibro(String nombreE, String nombreL) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			//Subir fichero a bucket
+			PutObjectRequest s = PutObjectRequest.builder()
+									.bucket(identificador+nombreE.toLowerCase())
+									.key("libros/"+nombreL)
+									.build();
+			RequestBody contenido = RequestBody.fromFile(Path.of("libros"+File.separator+nombreL));
+			s3.putObject(s, contenido);
+			resultado=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public boolean crearNota(String nombreE, String nota) {
+		// TODO Auto-generated method stub
+		boolean resultado = false;
+		try {
+			//Subir fichero creado desde un texto a bucket
+			PutObjectRequest s = PutObjectRequest.builder()
+									.bucket(identificador+nombreE.toLowerCase())
+									.key("notas/"+LocalDateTime.now()+".txt")
+									.build();
+			RequestBody contenido = RequestBody.fromString(nota);
+			s3.putObject(s, contenido);
+			resultado=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public ArrayList<Object[]> obtenerLibrosConDatos(String nombreE) {
+		// TODO Auto-generated method stub
+		ArrayList<Object[]> resultado = new ArrayList<Object[]>();
+		try {
+			ListObjectsV2Request s = ListObjectsV2Request.builder()
+										.bucket(identificador+nombreE.toLowerCase())
+										.build();
+			ListObjectsV2Response tmp =  s3.listObjectsV2(s);
+			//Obtener los nombres de los libros
+			for(S3Object o:tmp.contents()) {
+				Object[] aux = ;
+				resultado.add(new Object[]{o.key(),o.size(),o.lastModified()});
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	
+}
+
+
+
+
+
+
+
+
+

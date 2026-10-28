@@ -20,7 +20,7 @@ public class Principal {
 				System.out.println("2-Mostrar Estanterías");
 				System.out.println("3-Borrar Estantería");
 				System.out.println("4-Colocar libro en estantería");
-				System.out.println("5-Ver libro");
+				System.out.println("5-Ver libro o Ver notas");
 				System.out.println("6-Borrar Libro");
 				System.out.println("7-Crear nota en estantería");			
 				opcion = t.nextInt(); t.nextLine();	
@@ -38,6 +38,9 @@ public class Principal {
 				case 4:
 					colocarLibro();
 					break;
+				case 5:
+					verLibrosNotas();
+					break;
 				case 7:
 					crearNota();
 					break;
@@ -46,6 +49,37 @@ public class Principal {
 		}
 		else {
 			System.err.println("No se ha conectado con S3");
+		}
+	}
+
+	private static void verLibrosNotas() {
+		// TODO Auto-generated method stub
+		mostrarEstanterías();
+		System.out.println("Introduce el nombre de la estantería");
+		String nombreE = t.nextLine();
+		System.out.println("¿Qué quieres ver? Libro(L) Notas(N)");
+		if(t.nextLine().equalsIgnoreCase("L")) {
+			//Ver Libros
+			//Mostrar los libros que hay en la estantería
+			mostrarLibros(nombreE);
+			System.out.println("Introduce el nombre del libro que quieres ver");
+			String nombreL = t.nextLine();
+			String contenido = ad.obtenerContenidoLibro(nombreE,nombreL);
+			System.out.println(contenido);			
+		}
+		else {
+			//Ver notas
+		}
+	}
+
+	private static void mostrarLibros(String nombreE) {
+		// TODO Auto-generated method stub
+		ArrayList<Object[]> libros = ad.obtenerLibrosConDatos(nombreE);
+		for(Object[] o:libros) {
+			System.out.println("Título:"+o[0]+
+					"\tTamaño:"+o[1]+
+					"\tFecha Modificación:"+o[2]+
+					"\tTipo:"+o[3]);
 		}
 	}
 
@@ -73,8 +107,9 @@ public class Principal {
 		System.out.println("Introduce el nombre del libro que quieres colocar");
 		mostrarCarpetaLocal();
 		String nombreL = t.nextLine();
-		if(ad.subirLibro(nombreE, "libros"+File.separator+nombreL)) {
+		if(ad.subirLibro(nombreE, nombreL)) {
 			System.out.println("Libro colocado");
+			mostrarLibros(nombreE);
 		}
 		else {
 			System.err.println("Error al colocar el libro");

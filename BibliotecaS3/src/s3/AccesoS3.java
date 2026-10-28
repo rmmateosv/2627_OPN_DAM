@@ -1,5 +1,9 @@
 package s3;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -7,6 +11,7 @@ import java.util.ArrayList;
 
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.profiles.ProfileFile;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -15,6 +20,9 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
 import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteBucketResponse;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
@@ -134,9 +142,9 @@ public class AccesoS3 {
 			//Subir fichero a bucket
 			PutObjectRequest s = PutObjectRequest.builder()
 									.bucket(identificador+nombreE.toLowerCase())
-									.key(nombreL)
+									.key("libros/"+nombreL)
 									.build();
-			RequestBody contenido = RequestBody.fromFile(Path.of(nombreL));
+			RequestBody contenido = RequestBody.fromFile(Path.of("libros"+File.separator+nombreL));
 			s3.putObject(s, contenido);
 			resultado=true;
 		} catch (Exception e) {
@@ -163,5 +171,69 @@ public class AccesoS3 {
 		}
 		return resultado;
 	}
+	public ArrayList<Object[]> obtenerLibrosConDatos(String nombreE) {
+		// TODO Auto-generated method stub
+		ArrayList<Object[]> resultado = new ArrayList<Object[]>();
+		try {
+			ListObjectsV2Request s = ListObjectsV2Request.builder()
+										.bucket(identificador+nombreE.toLowerCase())
+										.build();
+			ListObjectsV2Response tmp =  s3.listObjectsV2(s);
+			//Obtener los nombres de los libros
+			for(S3Object o:tmp.contents()) {
+				Object[] aux = {o.key(),o.size(),o.lastModified(),obtenerTipo(nombreE,o.key())};
+				resultado.add(aux);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	private String obtenerTipo(String nombreE, String key) {
+		// TODO Auto-generated method stub
+		String resultado="";
+		try {
+			HeadObjectRequest s = HeadObjectRequest.builder()
+										.bucket(identificador+nombreE)
+										.key(key)
+										.build();
+			HeadObjectResponse tmp = s3.headObject(s);
+			return tmp.contentType();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public String obtenerContenidoLibro(String nombreE, String nombreL) {
+		// TODO Auto-generated method stub
+		String resultado = "";
+		try {
+			System.out.println("libros/"+nombreL);
+			GetObjectRequest s = GetObjectRequest.builder()
+									.bucket(identificador+nombreE)
+									.key("libros/"+nombreL)
+									.build();
+			InputStream tmp = s3.getObject(s, ResponseTransformer.toInputStream());
+			try(BufferedReader br = new BufferedReader(new InputStreamReader(tmp))){
+				String linea;
+				while((linea=br.readLine())!=null) {
+					resultado+=linea;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
 	
 }
+
+
+
+
+
+
+
+
+
