@@ -61,15 +61,38 @@ public class Principal {
 		if(t.nextLine().equalsIgnoreCase("L")) {
 			//Ver Libros
 			//Mostrar los libros que hay en la estantería
-			mostrarLibros(nombreE);
-			System.out.println("Introduce el nombre del libro que quieres ver");
-			String nombreL = t.nextLine();
-			String contenido = ad.obtenerContenidoLibro(nombreE,nombreL);
-			System.out.println(contenido);			
+			ArrayList<Object[]> libros = ad.obtenerLibrosConDatos(nombreE);
+			for(Object[] o:libros) {
+				System.out.println("Título:"+o[0]+
+						"\tTamaño:"+o[1]+
+						"\tFecha Modificación:"+o[2]+
+						"\tTipo:"+o[3]);
+			}
+			if(libros.size()>0) {
+				System.out.println("Introduce el nombre del libro que quieres ver");
+				String nombreL = t.nextLine();
+				String contenido = ad.obtenerContenidoLibro(nombreE,nombreL);
+				System.out.println(contenido);
+			}
+			else {
+				System.out.println("No hay libros");
+			}
 		}
 		else {
 			//Ver notas
+			mostrarNotas(nombreE);
 		}
+	}
+
+	private static void mostrarNotas(String nombreE) {
+		// TODO Auto-generated method stub
+		ArrayList<String> texto = ad.obtenerNotas(nombreE);
+		for(String s:texto) {
+			System.out.println("--------------------------------------------");
+			System.out.println(s);
+			System.out.println("--------------------------------------------");
+		}
+		
 	}
 
 	private static void mostrarLibros(String nombreE) {

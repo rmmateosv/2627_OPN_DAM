@@ -177,6 +177,7 @@ public class AccesoS3 {
 		try {
 			ListObjectsV2Request s = ListObjectsV2Request.builder()
 										.bucket(identificador+nombreE.toLowerCase())
+										.prefix("libros")
 										.build();
 			ListObjectsV2Response tmp =  s3.listObjectsV2(s);
 			//Obtener los nombres de los libros
@@ -222,6 +223,38 @@ public class AccesoS3 {
 					resultado+=linea;
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+	public ArrayList<String> obtenerNotas(String nombreE) {
+		// TODO Auto-generated method stub
+		ArrayList<String> resultado = new ArrayList<String>();
+		try {
+			ListObjectsV2Request s = ListObjectsV2Request.builder()
+										.bucket(identificador+nombreE.toLowerCase())
+										.prefix("notas")
+										.build();
+			ListObjectsV2Response tmp =  s3.listObjectsV2(s);
+			//Obtener los nombres de los libros
+			for(S3Object o:tmp.contents()) {
+				//Acceder al contenido del objeto y añadir a resultado
+				GetObjectRequest sol = GetObjectRequest.builder()
+						.bucket(identificador+nombreE)
+						.key(o.key())
+						.build();
+				InputStream fichero = s3.getObject(sol, ResponseTransformer.toInputStream());
+				try(BufferedReader br = new BufferedReader(new InputStreamReader(fichero))){
+					String linea;
+					String texto="";
+					while((linea=br.readLine())!=null) {
+						texto+=linea;
+					}
+					resultado.add(texto);
+				}
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
