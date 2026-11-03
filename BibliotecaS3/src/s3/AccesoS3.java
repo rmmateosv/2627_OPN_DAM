@@ -194,6 +194,7 @@ public class AccesoS3 {
 		// TODO Auto-generated method stub
 		String resultado="";
 		try {
+			//System.out.println(identificador+nombreE+key);
 			HeadObjectRequest s = HeadObjectRequest.builder()
 										.bucket(identificador+nombreE)
 										.key(key)
